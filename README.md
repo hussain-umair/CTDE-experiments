@@ -15,10 +15,18 @@ A modular, lightweight PyTorch implementation of **Value Decomposition Networks 
 - [Verification](#verification)
 - [Running Experiments](#running-experiments)
 - [Troubleshooting & Common Gotchas](#troubleshooting--common-gotchas)
+
 ---
+
 ## Overview 
-VDN solves cooperative multi-agent tasks under **Centralised Training with Decentralised Execution (CTDE)** by factorising the global joint action-value function \\(Q_{tot}(\boldsymbol{\tau}, \mathbf{u})\\) into a linear sum of individual agent utility functions \\(Q_i(\tau^i, u^i)\\): \\[Q_{tot}(\boldsymbol{\tau}, \mathbf{u}) = \sum_{i=1}^{n} Q_i(\tau^i, u^i)\\] This linear sum guarantees that taking individual greedy actions \\(\arg\\max_{u^i} Q_i(\tau^i, u^i)\\) maximizes \\(Q\_{tot}\\), enabling fully decentralized execution without inter-agent communication during test time. 
+VDN solves cooperative multi-agent tasks under **Centralised Training with Decentralised Execution (CTDE)** by factorising the global joint action-value function <i>Q<sub>tot</sub>(τ, <b>u</b>)</i> into a linear sum of individual agent utility functions <i>Q<sub>i</sub>(τi, ui)</i>: 
+
+<p align="center"> <b><i>Q<sub>tot</sub>(τ, <b>u</b>) = ∑ Q<sub>i</sub>(τi, ui)</i></b> </p>
+
+This linear sum guarantees that taking individual greedy actions <b>argmax<sub>ui</sub> Q<sub>i</sub>(τi, ui)</b> maximizes <i>Q<sub>tot</sub></i>, enabling fully decentralized execution without inter-agent communication during test time.
+
 --- 
+
 ## Repository Structure 
 ```text
 .
