@@ -14,7 +14,7 @@ A modular, lightweight PyTorch implementation of **Value Decomposition Networks 
 - [Python Environment Setup](#python-environment-setup)
 - [Verification](#verification)
 - [Running Experiments](#running-experiments)
-- [Troubleshooting & Common Gotchas](#troubleshooting--common-gotchas)
+- [Outputs & Metrics](#outputs--metrics)
 
 ---
 
