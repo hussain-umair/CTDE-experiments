@@ -1,5 +1,5 @@
 class Config:
-    map_name = "3m"
+    map_name = "2s3z"
     total_steps = 100000
     batch_size = 32
     buffer_size = 5000
@@ -7,6 +7,7 @@ class Config:
 
     # Network Hyperparameters
     rnn_hidden_dim = 64
+    mixing_embed_dim = 32
     lr = 5e-4
     gamma = 0.99
 

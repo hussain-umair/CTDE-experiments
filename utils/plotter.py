@@ -74,7 +74,7 @@ class TrainingPlotter:
         ax3.axhline(0.05, color='#888888', linestyle='--', label="ε_min (0.05)")
         ax3.set_title("Exploration Rate (Epsilon Annealing)")
         ax3.grid(True, axis='y', alpha=0.3)
-        plt.suptitle("VDN Training Dynamics on SMAC", fontsize=14, fontweight='bold', y=0.98)
+        plt.suptitle("Training Dynamics on SMAC", fontsize=14, fontweight='bold', y=0.98)
         plt.tight_layout()
         plt.savefig(save_path, dpi=200, bbox_inches='tight')
         plt.close()

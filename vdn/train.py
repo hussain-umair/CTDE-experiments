@@ -1,3 +1,8 @@
+import sys 
+from pathlib import Path 
+# Add project root directory to sys.path 
+sys.path.append(str(Path(__file__).resolve().parent.parent))
+
 import os
 import sys
 import numpy as np
