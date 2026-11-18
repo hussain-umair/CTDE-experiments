@@ -1,6 +1,6 @@
-# Value Decomposition Networks (VDN) on StarCraft Multi-Agent Challenge (SMAC)
+# Value Decomposition Networks (VDN) & QMIX on StarCraft Multi-Agent Challenge (SMAC)
 
-A modular, lightweight PyTorch implementation of **Value Decomposition Networks (VDN)** built from scratch for Multi-Agent Reinforcement Learning (MARL) on the **StarCraft Multi-Agent Challenge (SMAC)** environment.
+A modular, lightweight PyTorch implementation of **Value Decomposition Networks (VDN)** and  **QMIX** built from scratch for Multi-Agent Reinforcement Learning (MARL) on the **StarCraft Multi-Agent Challenge (SMAC)** environment.
 
 ---
 ## Table of Contents 
@@ -19,30 +19,56 @@ A modular, lightweight PyTorch implementation of **Value Decomposition Networks 
 ---
 
 ## Overview 
-VDN solves cooperative multi-agent tasks under **Centralised Training with Decentralised Execution (CTDE)** by factorising the global joint action-value function <i>Q<sub>tot</sub>(τ, <b>u</b>)</i> into a linear sum of individual agent utility functions <i>Q<sub>i</sub>(τi, ui)</i>: 
+In cooperative multi-agent reinforcement learning, agents must learn to coordinate actions to achieve a shared objective. Under Centralised Training with Decentralised Execution (CTDE), agents have access to full global state information during training, but must select actions independently based only on local observation histories &tau;<sup>i</sup> during execution.
+This repository implements two foundational value-based MARL algorithms:
 
-<p align="center"> <b><i>Q<sub>tot</sub>(τ, <b>u</b>) = ∑ Q<sub>i</sub>(τi, ui)</i></b> </p>
-
-This linear sum guarantees that taking individual greedy actions <b>argmax<sub>ui</sub> Q<sub>i</sub>(τi, ui)</b> maximizes <i>Q<sub>tot</sub></i>, enabling fully decentralized execution without inter-agent communication during test time.
+VDN (Value Decomposition Networks): Uses linear additivity to factorise the joint action-value function.
+QMIX: Uses state-conditioned hypernetworks to enforce a monotonic factorisation, enabling richer representational capacity.
 
 --- 
+
+## Algorithmic Background
+
+### Value Decomposition Networks (VDN)
+
+VDN decomposes the joint action-value function <i>Q<sub>tot</sub></i>(<b>τ</b>, <b>u</b>) into a linear sum of individual agent utility functions <i>Q<sub>i</sub></i>(<i>τi</i>, <i>ui</i>):
+
+<p align="center"><b><i>Q<sub>tot</sub>(<b>τ</b>, <b>u</b>) = ∑<sub>i=1</sub>n Q<sub>i</sub>(τi, ui)</i></b></p>
+
+This linear sum guarantees that taking individual greedy actions argmaxui <i>Q<sub>i</sub></i>(<i>τi</i>, <i>ui</i>) traces directly to the optimal joint action argmaxu <i>Q<sub>tot</sub></i>(<b>τ</b>, <b>u</b>).
+
+---
+
+### QMIX
+
+QMIX expands upon VDN by allowing non-linear representations while preserving monotonicity. The monotonicity constraint requires that a choice made by an individual agent that increases its utility <i>Q<sub>i</sub></i> also increases the overall joint action-value <i>Q<sub>tot</sub></i>:
+
+<p align="center"><b>(∂<i>Q<sub>tot</sub></i> / ∂<i>Q<sub>i</sub></i>) ≥ 0,    ∀i ∈ {1, ..., n}</b></p>
+
+To enforce <i>W > 0</i>, QMIX uses state-conditioned hypernetworks whose output weights are passed through an absolute value activation (torch.abs).
+
+---
 
 ## Repository Structure 
 ```text
 .
-├── README.md             # Project setup and experiment guide
-├── requirements.txt      # Python dependencies
-├── config.py             # Hyperparameter configuration
-├── learner.py            # VDN loss computation and optimization pipeline
-├── train.py              # Main training loop and episode rollout
 ├── models/
-│   ├── __init__.py
-│   ├── agent.py          # Recurrent DRQN Agent (GRUCell)
-│   └── mixer.py          # VDN Linear Sum Mixer
-└── utils/
-    ├── __init__.py
-    ├── replay_buffer.py  # Episode Replay Buffer with dynamic sequence padding
-    └── plotter.py        # Real-time CSV metrics logging &amp; curve renderer
+│ ├── __init__.py
+│ ├── agent.py             # Recurrent DRQN Agent (GRUCell)
+│ ├── vdn_mixer.py         # VDN Linear Sum Mixer
+│ └── qmix_mixer.py        # QMIX Monotonic Hypernetwork Mixer
+├── vdn/
+│ ├── learner.py           # VDN Learner (Linear sum factorization)
+│ └── train.py             # VDN Training loop
+├── qmix/
+│ ├── learner.py           # QMIX Learner (State-conditioned monotonic mixing)
+│ └── train.py             # QMIX Training loop
+├── utils/
+│ ├── __init__.py
+│ ├── replay_buffer.py     # Replay Buffer with dynamic sequence padding
+│ └── plotter.py           # Metrics logging & curve renderer
+├── config.py              # Hyperparameter configuration
+└── requirements.txt       # Python dependencies
 ```
 
 ## Prerequisites &amp; System Setup
@@ -130,14 +156,24 @@ python3 -c "import os; os.environ['SC2PATH'] = os.path.expanduser('~/StarCraftII
 
 ### Start Training
 
-To run VDN on the standard `3m` map:
+To run VDN on the standard `2s3z` map:
 ```
-python3 train.py
+python3 vdn/train.py
+```
+To run QMIX on the standard `2s3z` map:
+```
+python3 qmix/train.py
 ```
 
 ### Outputs & Metrics
-During training, metrics are automatically logged to logs/training_metrics.csv and rendered into a figure saved at logs/vdn_training_metrics.png, tracking:
+Evaluated on the **2s3z** map (2 Stalkers and 3 Zealots), **QMIX** achieves faster learning velocity and consistently higher battle win rates compared to **VDN**, as the monotonic hypernetwork effectively leverages global state information during centralised training.
 -  Episode Return / Reward: Raw and moving-average cumulative score.
 -  TD Loss: Mean squared temporal-difference error.
 -  Epsilon ε: Exploration decay curve.
+
+### VDN
 ![VDN Training Metrics](logs/vdn_training_metrics.png)
+
+### QMIX
+![QMIX Training Metrics](logs/qmix_training_metrics.png)
+
